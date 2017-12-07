@@ -3,6 +3,8 @@ package com.cp.okex;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
+import com.cp.okex.enums.Url;
+
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.HttpUrl;
@@ -26,7 +28,7 @@ public class TestOkHttp {
 			throw new Exception(response.message()+","+response.code());
 		}*/
 		
-		OkHttpClient client = new OkHttpClient.Builder().connectTimeout(1, TimeUnit.SECONDS).readTimeout(1, TimeUnit.SECONDS).build();
+		/*OkHttpClient client = new OkHttpClient.Builder().connectTimeout(1, TimeUnit.SECONDS).readTimeout(1, TimeUnit.SECONDS).build();
 		HttpUrl url = HttpUrl.parse("http://11134.com").newBuilder().addQueryParameter("test", "test").build();
 		Request request = new Request.Builder().url(url).build();
 		client.newCall(request).enqueue(new Callback() {
@@ -46,7 +48,9 @@ public class TestOkHttp {
 				System.out.println(arg0.request().url().toString());
 				arg1.printStackTrace();
 			}
-		});
+		});*/
+		
+		System.out.println(Url.获取OKEX合约行情.getUrl());
 	}
 
 }

@@ -36,7 +36,7 @@ public enum Url {
 	
 	//现货交易API
 	获取用户信息("/api/v1/userinfo"),
-	下单交易("/api/v1/trade"),
+	现货下单("/api/v1/trade"),
 	现货批量下单("/api/v1/batch_trade"),
 	撤销订单("/api/v1/cancel_order"),
 	获取用户的订单信息("/api/v1/order_info"),

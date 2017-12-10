@@ -27,7 +27,7 @@ public interface FutureHQ {
 	 * @param contractType	合约类型
 	 * @return
 	 */
-	FutureTicker futureTicker(Symbol symbol, ContractType contractType);
+	FutureTicker futureTicker(Symbol symbol, ContractType contractType) throws Exception;
 	
 	/**
 	 * 获取合约行情深度
@@ -37,7 +37,7 @@ public interface FutureHQ {
 	 * @param merge	是否合并深度
 	 * @return
 	 */
-	FutureDepth futureDepth(Symbol symbol, ContractType contractType, Integer size, Merge merge);
+	FutureDepth futureDepth(Symbol symbol, ContractType contractType, Integer size, Merge merge) throws Exception;
 	
 	/**
 	 * 获取合约交易记录信息
@@ -45,20 +45,20 @@ public interface FutureHQ {
 	 * @param contractType	合约类型
 	 * @return
 	 */
-	FutureTrades futureTrades(Symbol symbol, ContractType contractType);
+	FutureTrades futureTrades(Symbol symbol, ContractType contractType) throws Exception;
 	
 	/**
 	 * 获取合约指数信息
 	 * @param symbol
 	 * @return
 	 */
-	FutureIndex futureIndex(Symbol symbol);
+	FutureIndex futureIndex(Symbol symbol) throws Exception;
 	
 	/**
 	 * 获取美元-人民币汇率
 	 * @return
 	 */
-	ExchangeRate exchangeRate();
+	ExchangeRate exchangeRate() throws Exception;
 	
 	/**
 	 * 获取交割预估价
@@ -66,7 +66,7 @@ public interface FutureHQ {
 	 * @param symbol
 	 * @return
 	 */
-	FutureEstimatedPrice futureEstimatedPrice(Symbol symbol);
+	FutureEstimatedPrice futureEstimatedPrice(Symbol symbol) throws Exception;
 	
 	/**
 	 * 获取合约K线数据
@@ -77,7 +77,7 @@ public interface FutureHQ {
 	 * @param since	时间戳（eg：1417536000000）。 返回该时间戳以后的数据
 	 * @return
 	 */
-	FutureKline futureKline(Symbol symbol, ContractType contractType, KlineType klineType, Integer size, Long since);
+	FutureKline futureKline(Symbol symbol, ContractType contractType, KlineType klineType, Integer size, Long since) throws Exception;
 	
 	/**
 	 * 获取当前可用合约总持仓量
@@ -85,7 +85,7 @@ public interface FutureHQ {
 	 * @param contractType	合约类型
 	 * @return
 	 */
-	FutureHoldAmount futureHoldAmount(Symbol symbol, ContractType contractType);
+	FutureHoldAmount futureHoldAmount(Symbol symbol, ContractType contractType) throws Exception;
 	
 	/**
 	 * 获取合约最高买价和最低卖价
@@ -93,6 +93,6 @@ public interface FutureHQ {
 	 * @param contractType	合约类型
 	 * @return
 	 */
-	FuturePriceLimit futurePriceLimit(Symbol symbol, ContractType contractType);
+	FuturePriceLimit futurePriceLimit(Symbol symbol, ContractType contractType) throws Exception;
 
 }

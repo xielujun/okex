@@ -28,8 +28,8 @@ public class HttpClient {
 	public final static HashMap<String, List<Cookie>> cookieStore = new HashMap<String, List<Cookie>>();
 	
 	public static final OkHttpClient client = new OkHttpClient.Builder()
-			.connectTimeout(1, TimeUnit.SECONDS)
-			.readTimeout(1, TimeUnit.SECONDS)
+			.connectTimeout(5000, TimeUnit.SECONDS)
+			.readTimeout(5000, TimeUnit.SECONDS)
 			.cookieJar(new CookieJar() {//保存cookie
 
 				public List<Cookie> loadForRequest(HttpUrl paramHttpUrl) {
@@ -47,13 +47,13 @@ public class HttpClient {
 		return doGet(url, null);
 	}
 
-	public static String doGet(String url, Map<String, Object> parameter) throws Exception{
+	public static String doGet(String url, Map<String, String> parameter) throws Exception{
 		Builder builder = HttpUrl.parse(url).newBuilder();
 		if(parameter!=null && !parameter.isEmpty()){
-			Iterator<Entry<String, Object>> iterator = parameter.entrySet().iterator();
+			Iterator<Entry<String, String>> iterator = parameter.entrySet().iterator();
 			while(iterator.hasNext()){
-				Entry<String, Object> e = iterator.next();
-				builder.addQueryParameter(e.getKey(), e.getValue()+"");
+				Entry<String, String> e = iterator.next();
+				builder.addQueryParameter(e.getKey(), e.getValue());
 			}
 		}
 		Request request = new Request.Builder().url(builder.build()).build();
@@ -67,17 +67,17 @@ public class HttpClient {
 	
 	
 	public static String doPost(String url) throws Exception{
-		return doPost(url, new HashMap<String, Object>(0));
+		return doPost(url, new HashMap<String, String>(0));
 	}
 	
 	
-	public static String doPost(String url, Map<String, Object> parameter) throws Exception{
+	public static String doPost(String url, Map<String, String> parameter) throws Exception{
 		FormBody.Builder body = new FormBody.Builder();
 		if(parameter!=null && !parameter.isEmpty()){
-			Iterator<Entry<String, Object>> iterator = parameter.entrySet().iterator();
+			Iterator<Entry<String, String>> iterator = parameter.entrySet().iterator();
 			while(iterator.hasNext()){
-				Entry<String, Object> e = iterator.next();
-				body.add(e.getKey(), e.getValue()+"");
+				Entry<String, String> e = iterator.next();
+				body.add(e.getKey(), e.getValue());
 			}
 		}
 		Request request = new Request.Builder().url(url).post(body.build()).build();
@@ -107,7 +107,7 @@ public class HttpClient {
 		return doPost(url, files, null);
 	}
 	
-	public static String doPost(String url, File[] files, Map<String, Object> parameter) throws Exception{
+	public static String doPost(String url, File[] files, Map<String, String> parameter) throws Exception{
 		MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);
 		if(files!=null && files.length>0){
 			for(File file:files){
@@ -115,10 +115,10 @@ public class HttpClient {
 			}
 		}
 		if(parameter!=null && !parameter.isEmpty()){
-			Iterator<Entry<String, Object>> iterator = parameter.entrySet().iterator();
+			Iterator<Entry<String, String>> iterator = parameter.entrySet().iterator();
 			while(iterator.hasNext()){
-				Entry<String, Object> e = iterator.next();
-				builder.addFormDataPart(e.getKey(), e.getValue()+"");
+				Entry<String, String> e = iterator.next();
+				builder.addFormDataPart(e.getKey(), e.getValue());
 			}
 		}
 		Request request = new Request.Builder().url(url).post(builder.build()).build();
@@ -134,16 +134,16 @@ public class HttpClient {
 		return doPost(url, file, fileName, null);
 	}
 	
-	public static String doPost(String url, byte[] file, String fileName, Map<String, Object> parameter) throws Exception{
+	public static String doPost(String url, byte[] file, String fileName, Map<String, String> parameter) throws Exception{
 		MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);
 		if(file!=null && file.length>0){
 			builder.addFormDataPart("file", fileName, RequestBody.create(MediaType.parse("multipart/form-data"), file));
 		}
 		if(parameter!=null && !parameter.isEmpty()){
-			Iterator<Entry<String, Object>> iterator = parameter.entrySet().iterator();
+			Iterator<Entry<String, String>> iterator = parameter.entrySet().iterator();
 			while(iterator.hasNext()){
-				Entry<String, Object> e = iterator.next();
-				builder.addFormDataPart(e.getKey(), e.getValue()+"");
+				Entry<String, String> e = iterator.next();
+				builder.addFormDataPart(e.getKey(), e.getValue());
 			}
 		}
 		Request request = new Request.Builder().url(url).post(builder.build()).build();

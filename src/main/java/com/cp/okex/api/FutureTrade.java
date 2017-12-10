@@ -10,6 +10,7 @@ import com.cp.okex.bean.future.trade.FutureOrderInfo;
 import com.cp.okex.bean.future.trade.FutureOrdersInfo;
 import com.cp.okex.bean.future.trade.FuturePosition;
 import com.cp.okex.bean.future.trade.FuturePosition4fix;
+import com.cp.okex.bean.future.trade.FutureTradeDetail;
 import com.cp.okex.bean.future.trade.FutureTradesHistory;
 import com.cp.okex.bean.future.trade.FutureUserinfo;
 import com.cp.okex.bean.future.trade.FutureUserinfo4fix;
@@ -34,7 +35,7 @@ public interface FutureTrade {
 	 * 获取合约账户信息 （全仓）
 	 * @return
 	 */
-	FutureUserinfo futureUserinfo();
+	FutureUserinfo futureUserinfo()throws Exception ;
 	
 	/**
 	 * 获取用户持仓获取OKEX合约账户信息 （全仓）
@@ -42,7 +43,7 @@ public interface FutureTrade {
 	 * @param contractType	合约类型
 	 * @return
 	 */
-	FuturePosition futurePosition(Symbol symbol, ContractType contractType);
+	FuturePosition futurePosition(Symbol symbol, ContractType contractType)throws Exception ;
 	
 	/**
 	 * 合约下单
@@ -55,26 +56,26 @@ public interface FutureTrade {
 	 * @param leverRate		杠杆倍数
 	 * @return
 	 */
-	FutureTrade futureTrade(Symbol symbol, ContractType contractType, String price, String amount, TradeType tradeType, MatchPrice matchPrice, LeverRate leverRate);
+	FutureTradeDetail futureTrade(Symbol symbol, ContractType contractType, Double price, Integer amount, TradeType tradeType, MatchPrice matchPrice, LeverRate leverRate)throws Exception ;
 	
 	/**
-	 * 
+	 * 获取交易历史
 	 * @param symbol	币种标识
 	 * @param date		合约交割时间，格式yyyy-MM-dd
 	 * @param since		交易Id起始位置
 	 * @return
 	 */
-	FutureTradesHistory futureTradesHistory(Symbol symbol, String date, Long since);
+	FutureTradesHistory futureTradesHistory(Symbol symbol, String date, Long since)throws Exception ;
 	
 	/**
-	 * 
+	 * 批量下单
 	 * @param symbol	币种标识
 	 * @param contractType	合约类型
 	 * @param leverRate		杠杆倍数
 	 * @param orders_data	下单详情
 	 * @return
 	 */
-	FutureBatchTrade futureBatchTrade(Symbol symbol, ContractType contractType, LeverRate leverRate, List<OrdersData> ordersDatas);
+	FutureBatchTrade futureBatchTrade(Symbol symbol, ContractType contractType, LeverRate leverRate, List<OrdersData> ordersDatas)throws Exception ;
 	
 	/**
 	 * 取消合约订单
@@ -83,7 +84,7 @@ public interface FutureTrade {
 	 * @param order_id	订单ID 多个用逗号分隔,一次最多允许撤消3个订单
 	 * @return
 	 */
-	FutureCancel futureCancel(Symbol symbol, ContractType contractType, String order_id);
+	FutureCancel futureCancel(Symbol symbol, ContractType contractType, Long order_id)throws Exception ;
 	
 	/**
 	 * 获取合约订单信息
@@ -95,7 +96,7 @@ public interface FutureTrade {
 	 * @param page_length	每页条数，不得超过50条
 	 * @return
 	 */
-	FutureOrderInfo futureOrderInfo(Symbol symbol, ContractType contractType, TradeStatus tradeStatus, Long order_id, Integer current_page, Integer page_length);
+	FutureOrderInfo futureOrderInfo(Symbol symbol, ContractType contractType, TradeStatus tradeStatus, Long order_id, Integer current_page, Integer page_length)throws Exception ;
 
 	/**
 	 * 批量获取合约订单信息
@@ -104,13 +105,13 @@ public interface FutureTrade {
 	 * @param orders		多个订单ID用逗号分隔
 	 * @return
 	 */
-	FutureOrdersInfo futureOrdersInfo(Symbol symbol, ContractType contractType, String orders);
+	FutureOrdersInfo futureOrdersInfo(Symbol symbol, ContractType contractType, String orders)throws Exception ;
 	
 	/**
 	 * 获取逐仓合约账户信息
 	 * @return
 	 */
-	FutureUserinfo4fix futureUserinfo4fix();
+	FutureUserinfo4fix futureUserinfo4fix()throws Exception ;
 	
 	/**
 	 * 逐仓用户持仓查询
@@ -119,7 +120,7 @@ public interface FutureTrade {
 	 * @param leverRate		杠杆倍数
 	 * @return
 	 */
-	FuturePosition4fix futurePosition4fix(Symbol symbol, ContractType contractType, LeverRate leverRate);
+	FuturePosition4fix futurePosition4fix(Symbol symbol, ContractType contractType, LeverRate leverRate)throws Exception ;
 	
 	/**
 	 * 获取合约爆仓单
@@ -131,7 +132,7 @@ public interface FutureTrade {
 	 * @param page_length	每页获取条数，最多不超过50
 	 * @return
 	 */
-	FutureExplosive futureExplosive(Symbol symbol, ContractType contractType, ExplosiveStatus explosiveStatus, Integer current_page, Integer page_number, Integer page_length);
+	FutureExplosive futureExplosive(Symbol symbol, ContractType contractType, ExplosiveStatus explosiveStatus, Integer current_page, Integer page_number, Integer page_length)throws Exception ;
 
 	/**
 	 * 个人账户资金划转
@@ -140,6 +141,6 @@ public interface FutureTrade {
 	 * @param amount		划款数量
 	 * @return
 	 */
-	FutureDevolve futureDevolve(Symbol symbol, DevolveType devolveType, Double amount);
+	FutureDevolve futureDevolve(Symbol symbol, DevolveType devolveType, Double amount)throws Exception ;
 
 }

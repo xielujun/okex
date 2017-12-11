@@ -20,7 +20,6 @@ import com.cp.okex.service.impl.HQServiceImpl;
  */
 public class FollowKLineStry implements BaseStry {
 	
-	
 	/**
 	 * 行情服务，用来获取行情
 	 */
@@ -55,7 +54,7 @@ public class FollowKLineStry implements BaseStry {
 	 * 调整价
 	 * 不可能再指定的价格卖出
 	 */
-	private Double adj = 10d;
+	private Double adj = 5d;
 	
 	/**
 	 * 交易数量
@@ -82,6 +81,13 @@ public class FollowKLineStry implements BaseStry {
 	 */
 	private Double range = 0.0;
 	
+	/**
+	 * 行情频率
+	 */
+	private Long frequency = 1000l;
+	
+	 
+	
 	
 	/**
 	 * 实例化跟线策略
@@ -90,15 +96,17 @@ public class FollowKLineStry implements BaseStry {
 	 * @param amount		交易量-单次
 	 * @param leverRate		杠杆倍数
 	 * @param range			涨跌限制，如果开空涨过了该限制则切换交易，如果开多跌过了该限制则切换交易
+	 * @param frequency		获取行情的频率
 	 */
-	public FollowKLineStry(Symbol symbol, ContractType contractType, Integer amount, LeverRate leverRate, Double range) {
+	public FollowKLineStry(Symbol symbol, ContractType contractType, Integer amount, LeverRate leverRate, Double range, Long frequency) {
 		this.symbol = symbol;
 		this.contractType = contractType;
 		this.amount = amount;
 		this.leverRate = leverRate;
 		this.range = range;
+		this.frequency = frequency;
 		//启动行情服务
-		hq = new HQServiceImpl(symbol, contractType);
+		hq = new HQServiceImpl(symbol, contractType, frequency);
 		//实例化交易API
 		futureTrade = new FutureTradeImpl();
 	}
@@ -126,11 +134,10 @@ public class FollowKLineStry implements BaseStry {
 				try {
 					futureTrade.futureCancel(symbol, contractType, orderId);
 				} catch (Exception e) {
-					System.out.println("撤单失败。");
+					System.out.println(e.getMessage());
 				}
 				cancel = false;
 			}
-			
 			//设置交易价格
 			setStrikePrice();
 			
@@ -157,20 +164,20 @@ public class FollowKLineStry implements BaseStry {
 								}
 							}
 						}catch (Exception e) {
-							System.out.println(String.format("获取订单状态失败[%s]", orderId));
+							System.out.println(e.getMessage());
 						}
 						
 						count++;
-						stopForTime(500l);
+						stopForTime(frequency);
 					} while (true);
 				}
 			} catch (Exception e) {
-				System.out.println(String.format("发起交易失败[%s%s]", symbol, contractType));
+				System.out.println(e.getMessage());
 			}
 			
 			//控制下单频率
 			if(flag) {
-				stopForTime(500l);
+				stopForTime(frequency);
 			}
 		} while (flag);
 		
@@ -192,6 +199,7 @@ public class FollowKLineStry implements BaseStry {
 			Double buy = hq.getBuy();
 			Double sell = hq.getSell();
 			if(buy==0 || sell==0) {
+				stopForTime(frequency);
 				continue;
 			}
 			switch (tradeType) {
@@ -285,7 +293,7 @@ public class FollowKLineStry implements BaseStry {
 				break;
 			}
 			
-			stopForTime(1000l);
+			stopForTime(frequency);
 			
 		} while (flag);
 		
@@ -304,7 +312,7 @@ public class FollowKLineStry implements BaseStry {
 		Double buy = 0.0;
 		Double sell = 0.0;
 		do {
-			stopForTime(1000l);
+			stopForTime(frequency);
 			buy = hq.getBuy();
 			sell = hq.getSell();
 		} while (buy==0||sell==0);
@@ -312,7 +320,7 @@ public class FollowKLineStry implements BaseStry {
 		//获取交易方向
 		do {
 			
-			stopForTime(1000l);
+			stopForTime(frequency);
 			//排除没有获取到行情的情况
 			if(hq.getBuy()==0) {
 				break;
@@ -328,7 +336,7 @@ public class FollowKLineStry implements BaseStry {
 	
 	private static void stopForTime(Long time) {
 		try {
-			Thread.sleep(1000);
+			Thread.sleep(time);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}

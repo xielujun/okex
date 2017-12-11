@@ -87,16 +87,48 @@ public class FutureTradeImpl implements FutureTrade {
 	}
 
 	@Override
-	public FutureCancel futureCancel(Symbol symbol, ContractType contractType, Long order_id) {
-		// TODO Auto-generated method stub
-		return null;
+	public FutureCancel futureCancel(Symbol symbol, ContractType contractType, Long order_id) throws Exception {
+		Map<String, String> parameter = new HashMap<String, String>();
+		parameter.put("api_key", ApiKey.apiKey);
+		parameter.put("symbol", symbol.getValue());
+		parameter.put("contract_type", contractType.getValue());
+		parameter.put("order_id", order_id+"");
+		parameter.put("sign", MD5Utils.buildMysignV1(parameter, ApiKey.secretKey));
+		String json = HttpClient.doPost(Url.取消合约订单.getUrl(), parameter);
+		FutureCancel futureCancel = null;
+		if(json!=null) {
+			futureCancel = JSONUtils.toBean(json, FutureCancel.class);
+			if(!futureCancel.getResult()) {
+				throw new Exception(String.format("[%s]合约撤单失败[%s][%s,%s,%s]", DateUtils.getCurrentDate(), FutureErrorInfo.getErrorMsg(futureCancel.getError_code()), symbol.getValue(), contractType.getValue(), order_id));
+			}
+		}else {
+			throw new Exception(String.format("[%s]合约撤单失败[%s][%s,%s,%s]", DateUtils.getCurrentDate(), "返回结果为空。", symbol.getValue(), contractType.getValue(), order_id));
+		}
+		return futureCancel;
 	}
 
 	@Override
 	public FutureOrderInfo futureOrderInfo(Symbol symbol, ContractType contractType, TradeStatus tradeStatus,
-			Long order_id, Integer current_page, Integer page_length) {
-		// TODO Auto-generated method stub
-		return null;
+			Long order_id, Integer current_page, Integer page_length) throws Exception {
+		Map<String, String> parameter = new HashMap<String, String>();
+		parameter.put("api_key", ApiKey.apiKey);
+		parameter.put("symbol", symbol.getValue());
+		parameter.put("contract_type", contractType.getValue());
+		parameter.put("order_id", order_id+"");
+		parameter.put("current_page", "1");
+		parameter.put("page_length", "10");
+		parameter.put("sign", MD5Utils.buildMysignV1(parameter, ApiKey.secretKey));
+		String json = HttpClient.doPost(Url.获取合约订单信息.getUrl(), parameter);
+		FutureOrderInfo futureOrderInfo = null;
+		if(json!=null) {
+			futureOrderInfo = JSONUtils.toBean(json, FutureOrderInfo.class);
+			if(!futureOrderInfo.getResult()) {
+				throw new Exception(String.format("[%s]获取合约信息失败[%s][%s,%s,%s]", DateUtils.getCurrentDate(), FutureErrorInfo.getErrorMsg(futureOrderInfo.getError_code()), symbol.getValue(), contractType.getValue(), order_id));
+			}
+		}else {
+			throw new Exception(String.format("[%s]获取合约信息失败[%s][%s,%s,%s]", DateUtils.getCurrentDate(), "返回结果为空。", symbol.getValue(), contractType.getValue(), order_id));
+		}
+		return futureOrderInfo;
 	}
 
 	@Override

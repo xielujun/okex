@@ -9,8 +9,8 @@ import com.cp.okex.stry.FollowKLineStry;
 public class Main {
 	
 
-	public static void main(String[] args) throws InterruptedException {
-		BaseStry baseStry = new FollowKLineStry(Symbol.比特币, ContractType.当周, 100, LeverRate.倍20, 90d);
+	public static void main(String[] args)  {
+		BaseStry baseStry = new FollowKLineStry(Symbol.比特币, ContractType.当周, 100, LeverRate.倍20, 50d, 2000l);
 		baseStry.run();
 	}
 

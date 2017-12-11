@@ -14,4 +14,16 @@ public interface HQService {
 	 */
 	Double getSell();
 	
+	/**
+	 * 获取合并后的买一价
+	 * @return
+	 */
+	Double getMergeBuy();
+	
+	/**
+	 * 获取合并后的卖一价
+	 * @return
+	 */
+	Double getMergeSell();
+	
 }

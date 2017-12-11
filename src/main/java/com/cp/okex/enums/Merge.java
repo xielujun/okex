@@ -7,8 +7,8 @@ package com.cp.okex.enums;
  */
 public enum Merge {
 	
-	合并(0),
-	不合并(2);
+	合并(1),
+	不合并(0);
 	
 	private Integer value;
 	

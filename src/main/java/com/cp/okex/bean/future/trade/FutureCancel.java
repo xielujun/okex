@@ -22,7 +22,18 @@ public class FutureCancel {
 	 */
 	private Boolean result;
 	
+	/**
+	 * 错误码
+	 */
+	private Integer error_code;
 	
+	
+	public Integer getError_code() {
+		return error_code;
+	}
+	public void setError_code(Integer error_code) {
+		this.error_code = error_code;
+	}
 	public String getError() {
 		return error;
 	}
@@ -51,7 +62,7 @@ public class FutureCancel {
 	@Override
 	public String toString() {
 		return "FutureCancel [error=" + error + ", success=" + success + ", order_id=" + order_id + ", result=" + result
-				+ "]";
+				+ ", error_code=" + error_code + "]";
 	}
 	
 }

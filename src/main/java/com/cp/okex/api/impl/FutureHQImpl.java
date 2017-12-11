@@ -32,9 +32,14 @@ public class FutureHQImpl implements FutureHQ {
 	}
 
 	@Override
-	public FutureDepth futureDepth(Symbol symbol, ContractType contractType, Integer size, Merge merge) {
-		// TODO Auto-generated method stub
-		return null;
+	public FutureDepth futureDepth(Symbol symbol, ContractType contractType, Integer size, Merge merge) throws Exception {
+		String url = String.format("%s?symbol=%s&contract_type=%s&size=%s&merge=%s", Url.获取OKEX合约深度信息.getUrl(), symbol.getValue(), contractType.getValue(), size, merge);
+		String json = HttpClient.doGet(url);
+		FutureDepth futureDepth = null;
+		if(json!=null) {
+			futureDepth = JSONUtils.toBean(json, FutureDepth.class);
+		}
+		return futureDepth;
 	}
 
 	@Override

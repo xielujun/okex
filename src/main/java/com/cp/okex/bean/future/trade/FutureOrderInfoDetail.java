@@ -5,7 +5,7 @@ public class FutureOrderInfoDetail {
 	/**
 	 * 委托数量
 	 */
-	private Long amount;
+	private Integer amount;
 	/**
 	 * 合约名称
 	 */
@@ -56,10 +56,10 @@ public class FutureOrderInfoDetail {
 	private Integer lever_rate;
 	
 	
-	public Long getAmount() {
+	public Integer getAmount() {
 		return amount;
 	}
-	public void setAmount(Long amount) {
+	public void setAmount(Integer amount) {
 		this.amount = amount;
 	}
 	public String getContract_name() {

@@ -2,6 +2,7 @@ package com.cp.okex.stry;
 
 import com.cp.okex.api.FutureTrade;
 import com.cp.okex.api.impl.FutureTradeImpl;
+import com.cp.okex.bean.future.trade.FutureCancel;
 import com.cp.okex.bean.future.trade.FutureOrderInfo;
 import com.cp.okex.bean.future.trade.FutureOrderInfoDetail;
 import com.cp.okex.bean.future.trade.FutureTradeDetail;
@@ -46,15 +47,21 @@ public class FollowKLineStry implements BaseStry {
 	private TradeType tradeType = null;
 	
 	/**
-	 * 成交价格
+	 * 现成交价格
 	 */
 	private Double strikePrice = 0.0;
+	
+	
+	/**
+	 * 原成交价格
+	 */
+	private Double rStrikePrice = 0.0;
 	
 	/**
 	 * 调整价
 	 * 不可能再指定的价格卖出
 	 */
-	private Double adj = 5d;
+	private Double adj = 2d;
 	
 	/**
 	 * 交易数量
@@ -132,7 +139,8 @@ public class FollowKLineStry implements BaseStry {
 			//判断是否需要撤单
 			if(cancel) {
 				try {
-					futureTrade.futureCancel(symbol, contractType, orderId);
+					FutureCancel FutureCancel = futureTrade.futureCancel(symbol, contractType, orderId);
+					System.out.println(String.format("撤单结果[%s]", FutureCancel.getResult()));
 				} catch (Exception e) {
 					System.out.println(e.getMessage());
 				}
@@ -140,16 +148,29 @@ public class FollowKLineStry implements BaseStry {
 			}
 			//设置交易价格
 			setStrikePrice();
+			System.out.println(String.format("获取到的最新交易价格[%s]", strikePrice));
 			
 			try {
+				FutureTradeDetail futureTradeDetail = null;
 				//发起交易
-				FutureTradeDetail futureTradeDetail = futureTrade.futureTrade(symbol, contractType, strikePrice, amount, tradeType, MatchPrice.非对手价, leverRate);
+				if(tradeType==TradeType.平多||tradeType==TradeType.平空) {
+					//平仓时获取订单的最新可平数量，防止部分成交后平仓失败的情况
+					FutureOrderInfo futureOrderInfo = futureTrade.futureOrderInfo(symbol, contractType, null, orderId, 1, 1);
+					if(futureOrderInfo!=null && futureOrderInfo.getOrders().size()>0) {
+						FutureOrderInfoDetail futureOrderInfoDetail = futureOrderInfo.getOrders().get(0);
+						futureTradeDetail = futureTrade.futureTrade(symbol, contractType, strikePrice, futureOrderInfoDetail.getAmount(), tradeType, MatchPrice.非对手价, leverRate);
+					}
+				}else {
+					futureTradeDetail = futureTrade.futureTrade(symbol, contractType, strikePrice, amount, tradeType, MatchPrice.非对手价, leverRate);
+				}
 				orderId = futureTradeDetail.getOrder_id();
 				if(orderId!=null) {
+					System.out.println(String.format("交易[%s%s]下单成功", tradeType, strikePrice));
 					int count = 0;
 					//获取订单状态
 					do {
 						if(count==10) {
+							System.out.println(String.format("交易[%s%s]10次未成交,撤单,调整成交价重新下单", tradeType, strikePrice));
 							//10次未成交则撤单重新下单
 							cancel = true;
 							break;
@@ -159,6 +180,7 @@ public class FollowKLineStry implements BaseStry {
 							if(futureOrderInfo!=null && futureOrderInfo.getOrders().size()>0) {
 								FutureOrderInfoDetail futureOrderInfoDetail = futureOrderInfo.getOrders().get(0);
 								if(futureOrderInfoDetail.getStatus()==2) {
+									System.out.println(String.format("交易[%s%s]成交", tradeType, strikePrice));
 									flag = false;//下单成功调处循环--下一步监控订单
 									break;
 								}
@@ -222,6 +244,7 @@ public class FollowKLineStry implements BaseStry {
 				default:
 					break;
 			}
+			rStrikePrice = strikePrice;
 		} while (flag);
 	}
 
@@ -248,6 +271,7 @@ public class FollowKLineStry implements BaseStry {
 			Double sell = hq.getSell();
 			
 			if(buy==0||sell==0) {
+				System.out.println("最新价获取失败");
 				continue;
 			}
 			
@@ -257,12 +281,23 @@ public class FollowKLineStry implements BaseStry {
 				//判断买一价是否上涨
 				if(buy>strikePrice) {
 					strikePrice = buy;//最高价保存为成交价
+					System.out.println(String.format("开多涨了,最高买价保存为现成交价[%s]", strikePrice));
 				}else if(buy<strikePrice) {
 					//跌了,判断是否在可以接受的范围
 					if(strikePrice-buy>range) {
-						//切换交易
-						tradeType = TradeType.平多;
-						flag = false;
+						System.out.println(String.format("开多跌了超过阈值,原成交价[%s]最新价[%s]现成交价[%s]差额[%s]阈值[%s]", rStrikePrice, buy, strikePrice, strikePrice-buy, range));
+						stopForTime(frequency*5);
+						if(hq.getBuy()>0 && strikePrice-hq.getBuy()>range) {
+							System.out.println(String.format("二次判断同样超过阈值,原成交价[%s]最新价[%s]现成交价[%s]差额[%s]阈值[%s]", rStrikePrice, buy, strikePrice, strikePrice-hq.getBuy(), range));
+							//切换交易
+							tradeType = TradeType.平多;
+							System.out.println(String.format("切换交易为[%s]", tradeType));
+							flag = false;
+						}else {
+							System.out.println(String.format("二次判断未超过阈值,原成交价[%s]最新价[%s]现成交价[%s]差额[%s]阈值[%s]", rStrikePrice, buy, strikePrice, strikePrice-hq.getBuy(), range));
+						}
+					}else {
+						System.out.println(String.format("开多跌了未超过阈值,原成交价[%s]最新价[%s]现成交价[%s]差额[%s]阈值[%s]", rStrikePrice, buy, strikePrice, strikePrice-buy, range));
 					}
 				}
 				break;
@@ -270,21 +305,34 @@ public class FollowKLineStry implements BaseStry {
 				//判断卖一价是否下跌
 				if(sell<strikePrice) {
 					strikePrice = sell;//最低价保存为成交价
+					System.out.println(String.format("开空跌了,最低卖价保存为现成交价[%s]", strikePrice));
 				}else if(sell>strikePrice) {
 					//涨了,判断是否在可以接受的范围
 					if(sell-strikePrice>range) {
-						//切换交易
-						tradeType = TradeType.平空;
-						flag = false;
+						System.out.println(String.format("开多涨了超过阈值,原成交价[%s]最新价[%s]现成交价[%s]差额[%s]阈值[%s]", rStrikePrice, sell, strikePrice, sell-strikePrice, range));
+						stopForTime(frequency*5);
+						if(hq.getSell()>0 && hq.getSell()-strikePrice>range) {
+							System.out.println(String.format("二次判断同样超过阈值,原成交价[%s]最新价[%s]现成交价[%s]差额[%s]阈值[%s]", rStrikePrice, sell, strikePrice, hq.getSell()-strikePrice, range));
+							//切换交易
+							tradeType = TradeType.平空;
+							System.out.println(String.format("切换交易为[%s]", tradeType));
+							flag = false;
+						}else {
+							System.out.println(String.format("二次判断未超过阈值,原成交价[%s]最新价[%s]现成交价[%s]差额[%s]阈值[%s]", rStrikePrice, sell, strikePrice, hq.getSell()-strikePrice, range));
+						}
+					}else {
+						System.out.println(String.format("开空涨了未超过阈值,原成交价[%s]最新价[%s]现成交价[%s]差额[%s]阈值[%s]", rStrikePrice, sell, strikePrice, sell-strikePrice, range));
 					}
 				}
 				break;
 			case 平多:
+				System.out.println("当前交易平多成功,则重新开空");
 				//切换交易
 				tradeType = TradeType.开空;
 				flag = false;
 				break;
 			case 平空:
+				System.out.println("当前交易平空成功,则重新开多");
 				//切换交易
 				tradeType = TradeType.开多;
 				flag = false;

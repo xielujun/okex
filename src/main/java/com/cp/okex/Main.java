@@ -10,7 +10,7 @@ public class Main {
 	
 
 	public static void main(String[] args)  {
-		BaseStry baseStry = new FollowKLineStry(Symbol.比特币, ContractType.当周, 100, LeverRate.倍20, 50d, 2000l);
+		BaseStry baseStry = new FollowKLineStry(Symbol.比特币, ContractType.当周, 10, LeverRate.倍20, 80d, 2000l);
 		baseStry.run();
 	}
 
